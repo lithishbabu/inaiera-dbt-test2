@@ -1,0 +1,40 @@
+name: 'shop_clickhouse'
+version: '1.0.0'
+config-version: 2
+
+# A self-contained ClickHouse demo: it loads its own sample data (seeds) and builds everything from it. It reads nothing from any
+# other dbt project, so it can run on its own at any time. Every table and view is prefixed `shopch` so it never clashes with
+# another project writing into the same ClickHouse database. (In ClickHouse a dbt "schema" is a database.)
+profile: 'shop_clickhouse'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+clean-targets: ["target"]
+
+vars:
+  # Order statuses that count as revenue.
+  revenue_statuses: ['completed', 'shipped']
+
+seeds:
+  shop_clickhouse:
+    # ClickHouse column types for the CSV columns (a CSV has no types).
+    +column_types:
+      customer_id: UInt32
+      product_id: UInt32
+      order_id: UInt32
+      order_item_id: UInt32
+      quantity: UInt32
+      unit_price: "Decimal(10, 2)"
+      signup_date: Date
+      order_date: Date
+
+models:
+  shop_clickhouse:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    marts:
+      +materialized: table
