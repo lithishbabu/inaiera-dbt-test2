@@ -1,0 +1,40 @@
+name: 'shop'
+version: '1.0.0'
+config-version: 2
+
+# A self-contained Trino demo: it loads its own sample data (seeds) and builds everything from it. It reads nothing from any other
+# dbt project, so it can run on its own at any time. Every table and view is prefixed with `shop` so it never clashes with another
+# project writing into the same Trino schema.
+profile: 'shop'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+clean-targets: ["target"]
+
+vars:
+  # Order statuses that count as revenue.
+  revenue_statuses: ['completed', 'shipped']
+
+seeds:
+  shop:
+    # Trino reads a CSV column as text unless it is told the type.
+    +column_types:
+      customer_id: bigint
+      product_id: bigint
+      order_id: bigint
+      order_item_id: bigint
+      quantity: integer
+      unit_price: "decimal(10,2)"
+      signup_date: date
+      order_date: date
+
+models:
+  shop:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    marts:
+      +materialized: table

@@ -1,0 +1,4 @@
+# dbt writes these when it runs in a working copy
+target/
+logs/
+dbt_packages/

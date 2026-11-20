@@ -1,0 +1,64 @@
+version: 2
+
+# Descriptions and tests for the shop project. Tests run with `dbt build` right after the model they check.
+
+seeds:
+  - name: shop_customers
+    description: "Sample customers (CSV)."
+  - name: shop_products
+    description: "Sample product catalogue (CSV)."
+  - name: shop_orders
+    description: "Sample orders (CSV)."
+  - name: shop_order_items
+    description: "Sample order lines (CSV)."
+
+models:
+  - name: fct_shop_orders
+    description: "One row per order with totals and a revenue flag."
+    columns:
+      - name: order_id
+        data_tests: [unique, not_null]
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['placed', 'shipped', 'completed', 'cancelled', 'returned']
+      - name: order_total
+        data_tests: [positive_value]
+      - name: customer_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_shop_customers')
+                field: customer_id
+  - name: dim_shop_customers
+    description: "One row per customer with lifetime value and segment."
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+      - name: email
+        data_tests: [not_null]
+      - name: customer_segment
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['high', 'medium', 'low', 'no_purchases']
+  - name: shop_daily_revenue
+    description: "Revenue per day with a running total."
+    columns:
+      - name: order_date
+        data_tests: [unique, not_null]
+      - name: revenue
+        data_tests: [positive_value]
+  - name: shop_product_sales
+    description: "Sales per product, ranked by revenue."
+    columns:
+      - name: product_id
+        data_tests: [unique, not_null]
+      - name: revenue_rank
+        data_tests: [unique]
+  - name: shop_category_summary
+    description: "Revenue per category and its share of the total."
+    columns:
+      - name: category
+        data_tests: [unique, not_null]
