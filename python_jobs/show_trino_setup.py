@@ -42,4 +42,7 @@ show("1. Catalogs and the connector behind each one", "select catalog_name, conn
 show(f"2. Schemas in '{catalog}'", f'show schemas from "{catalog}"')
 show(f"3. Tables in {catalog}.public (the dbt shop project builds here)", f'show tables from "{catalog}".public')
 show("4. First rows of dim_shop_customers (proves the table is readable through Trino)",f'select * from "{catalog}"."public"."dim_shop_customers" limit 3')
+show("5. Where the table's data files are stored (the warehouse is the start of this path, up to the table folder)",
+     f'select "$path" as file_path from "{catalog}"."public"."dim_shop_customers" limit 1')
+show("6. Table properties", f'select * from "{catalog}"."public"."dim_shop_customers$properties"')
 sys.exit(0)
